@@ -92,9 +92,37 @@ CHAPTER 2
 
 My SQL安装
 
-        
+    windows安装
+        下载mysql.xxxxxxxxxx.zip
+        解压
+        运行setup.exe
+        安装
+        设置配置文件
+    启动/关闭服务
+        net start mysql;
+        net stop mysql;
+    登录mysql
+        mysql -u xx -p
+        enterpassword: xxx
+    显示数据库
+        show databases;
+    查看用户
+        use mysql;
+        select * from user;
+    创建用户
+        create user username@localhost identified by '123456';
+    授权用户
+        grant privileges on databasename.tablename to username@localhost;
+    删除用户
+        drop user username@localhost
+    撤销授权
+        revoke privileges on databasename.tablename from username@localhost;
+    设置用户密码
+        set password for username@localhost = password('xxxx');
+        当前用户
+            set password = password('xxx');
 
-      
+CHAPTER 3      
     
         
     
