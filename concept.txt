@@ -1,3 +1,5 @@
+CHAPTER 1
+
 mysql 是多用户、多线程SQL数据库服务器，由一个客户机/服务器结构的实现，由一个服务器守护程序mysqld和很多不同的客户程序组成。
 
 mysql主要目标是快速、健壮、易用
@@ -74,11 +76,22 @@ My SQL的体系结构
     表中的数据没有顺序，不存在前十个记录这种概念
 
 My SQL数据处理
-
-
-
+    
+    My SQL支持：数字类型、日期和时间类型以及字符串（字符）类型
+        数字列类型：
+            整型：TINYINT  SAMLLINT  MEDIUMINT  INT BIGINT
+            浮点型：FLOAT  DOUBLE DECIMAL
         
-     
+        日期和时间类型：
+            DATATIME  DATE  TIMESTAMP  TIME YEAR
+            
+        字符串类型：
+            CHAR  VARCHAR  BLOB  TEXT  ENUM  SET
+
+CHAPTER 2        
+
+My SQL安装
+
         
 
       
