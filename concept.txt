@@ -123,7 +123,26 @@ My SQL安装
             set password = password('xxx');
 
 CHAPTER 3      
-    
-        
+数据库
+    SHOW显示已有的数据库
+        show databases[like wild]
+    创建数据库
+        create databases db_name
+    删除数据库
+        drop databases db_name
+    使用数据库
+        use db_name
+数据表
+
+      显示数据表信息
+          show tables [from db_name][like wild]
+          
+          show columns from tab_name[from db_name]
+          
+          show tables from db_name.tab_name
+          
+      创建数据表
+          create table tbl_name(create_definition,...)[type = table_type]
+          
     
   
