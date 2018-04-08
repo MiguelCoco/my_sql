@@ -36,10 +36,10 @@ mysql优势：
     关系表必须符合特定的条件
         1.每个单元只能存储一条数据，这也叫信息原则（一个单元包含多余一条数据称信息编码）
         2.贮存在列下的数据必须具有相同的数据类型
-        3.每行是唯一的（没有完全相同的行）
-        4.列没有顺序
+        3.列没有顺序
+        4.列有一个唯一性的名称
         5.行没有顺序
-        6.列有一个唯一性的名称
+        6.每行是唯一的（没有完全相同的行）
         
 数据操作或数据处理： SELECT、INSERT、UPDATE、DELETE
 
@@ -105,44 +105,83 @@ My SQL安装
         mysql -u xx -p
         enterpassword: xxx
     显示数据库
-        show databases;
+        SHOW DATABASES;
     查看用户
-        use mysql;
-        select * from user;
+        USE mysql;
+        SELECT * from user;
     创建用户
-        create user username@localhost identified by '123456';
+        CREATE USER username@localhost identified by '123456';
     授权用户
-        grant privileges on databasename.tablename to username@localhost;
+        GRANT PRIVILEGES on databasename.tablename to username@localhost;
     删除用户
-        drop user username@localhost
+        DROP USER username@localhost
     撤销授权
-        revoke privileges on databasename.tablename from username@localhost;
+        REVOKE PRIVILEGES on databasename.tablename from username@localhost;
     设置用户密码
-        set password for username@localhost = password('xxxx');
+        SET PASSWORD for username@localhost = password('xxxx');
         当前用户
-            set password = password('xxx');
+            SET PASSWORD = password('xxx');
 
 CHAPTER 3      
 数据库
     SHOW显示已有的数据库
-        show databases[like wild]
+        SHOW DATABASES[like wild]
     创建数据库
-        create databases db_name
+        CREATE DATABASE db_name
     删除数据库
-        drop databases db_name
+        DROP DATABASE db_name
     使用数据库
-        use db_name
+        USE db_name
 数据表
 
       显示数据表信息
-          show tables [from db_name][like wild]
+          SHOW TABLES [from db_name][like wild]
           
-          show columns from tab_name[from db_name]
+          SHOW COLUMNS from tab_name[from db_name]
           
-          show tables from db_name.tab_name
+          SHOW TABLES from db_name.tab_name
           
       创建数据表
-          create table tbl_name(create_definition,...)[type = table_type]
+          CREATE TABLE tbl_name(create_definition,...)[type = table_type]
+      
+      ALTER TABLE修改数据表结构
+          增加列
+              ALTER TABLE tab_name ADD col_name type;
+          删除列
+              ALTER TABLE tab_name DROP col_name;
+          改变列
+              ALTER TABLE tab_name MODIFY col_name type;
+          更名列
+              ALTER TABLE tab_name CHANGE col_name new_col_name;
+          更名表
+              ALTER TABLE tab_name RENAME tal_name new_tal_name;
+      删除数据表DROP TABLE
+          DROP TABLE tab_name;
+      
+      向数据表插入数据记录
+          INSERT INTO tab_name [(col_name...)] VALUES('XXX','XXXX','XXX')
+          INSERT INTO tab_name SET col_name = 'xxx', col_name = 'yyy',...
+      使用INSERT INTO ....SELECT插入记录
+          INSERT INTO tab_name(col_name) SELECT col_name from tab_name;
+       
+      REPLACE 与 INSERT使用方法一致，当插入的新纪录与旧记录在唯一索引上有相同的值时，REPLACE删除旧记录，INSERT报错，REPLACE 可能改变原有的值
+      
+      LOAD批量录入数据
+          LOAD DATA [LOCAL] INFILE 'file_name.txt' [REPLACE | IGNORE] INTO TABLE tbl_name；（字句设置结束和分隔，需再学习！！）
+          REPLACE 和IGNORE 关键词控制对现有的唯一键记录的重复的处理。如果你指定REPLACE，新行将代替有相同的唯一键值的现有行。如果你指定IGNORE，跳过有唯一键的现有行的重复行的输入。如果都未指定，出现重复报错，录入终止。
+      
+      SELECT语法
+          SELECT selection_list 选择哪些列
+          FROM table_list 从何处选择行
+          WHERE primary_constraint 列必须满足什么条件
+          GROUP BY grouping_columns 怎样对结果分组
+          HAVING secondary_constraint 列必须满足的第二条件
+          ORDER BY sorting_columns 怎样对结果排序
+          LIMIT count 结果限定
+
+
+      
+      
           
     
   
