@@ -308,24 +308,49 @@ SELECT语句高级功能
 
         SELECT name,species FROM pet ORDER BY 1,2;
     
-    在子句中使用列的别名：
-        可以在GROUP BY、ORDER BY 或在HAVING 部分中使用别名引用列
-        SELECT species,COUNT(*) AS total FROM pet GROUP BY species HAVING total>1;
+        在子句中使用列的别名：
+            可以在GROUP BY、ORDER BY 或在HAVING 部分中使用别名引用列
+            SELECT species,COUNT(*) AS total FROM pet GROUP BY species HAVING total>1;
 
-        注意！！！ANSI SQL 不允许你在一个WHERE 子句中引用一个别名
-        SELECT id,COUNT(*) AS total FROM pet WHERE total > 1 GROUP BY species
-        会有下面的错误：
-        ERROR 1054: Unknown column 'total' in 'where clause'
+           注意！！！ANSI SQL 不允许你在一个WHERE 子句中引用一个别名
+            SELECT id,COUNT(*) AS total FROM pet WHERE total > 1 GROUP BY species
+            会有下面的错误：
+            ERROR 1054: Unknown column 'total' in 'where clause'
 
-    表的别名
-        SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
-        -> FROM pet AS p1, pet AS p2
-        -> WHERE p1.species = p2.species AND p1.sex = "f" AND p2.sex = "m";
-
-
-
-
-
+        表的别名
+            SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
+            -> FROM pet AS p1, pet AS p2
+            -> WHERE p1.species = p2.species AND p1.sex = "f" AND p2.sex = "m";
+    
+    取出互不相同的记录
+        SELECT DISTINCT * FROM tab_name WHERE condition；
+       
+    NULL值问题
+        NULL 意味着“没有值”或“未知值”，测试NULL使用IS NULL 或 IS NOT NULL，使用算数比较符没意义
+        NULL 值在于任何其他值甚至NULL 值比较时总是假的（FALSE）
+    
+    大小写敏感性
+        数据库和表名
+            MYSQL中，操作系统的敏感性决定数据库和表命名的大小写敏感性，unix区分大小写，win32不区分
+        列名/列的别名
+            所有情况下忽略大小写
+        表的别名
+            区分大小写
+        字符串匹配
+            大小写不敏感
+    
+    检索语句与多个表的连接
+        全连接：检索时指定多个表，将每个表用都逗号分隔，每个表的数据行都和其他表的每行交叉产生所有可能的组合，这样就是一个全连接        
+            SELECT * FROM tab_1,tab_2;
+            SELECT tab_1.*,tab_2.* FROM tab_1,tab_2;
+            输出结果为tab_1行数*tab_2行数的结果,输出的排序是以FROM 子句后的表的顺序进行
+        
+        左连接：对于左连接，不仅匹配类似前面的行记录，而且还显示左边的表有而右边的表中无匹配的行,对于这样的行，从右边表选择的列均被显示为NULL。
+            这样，每一匹配的行都从左边的表被选出，而如果右边表有一个匹配的行，则被选中，如果不匹配，行仍然被选中，不过，
+            其中右边相应的列在结果集中均设为NULL。即，LEFT JOIN 强制包含左边表的每一行，而不管右边表是否匹配。
+            SELECT * FROM table_reference LEFT JOIN table_reference ON conditional_expr
+            其中table_reference 为连接的表，ON 子句后接类似WHERE 子句的条件
+    
 
 
 
