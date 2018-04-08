@@ -134,50 +134,188 @@ CHAPTER 3
         USE db_name
 数据表
 
-      显示数据表信息
-          SHOW TABLES [from db_name][like wild]
+    显示数据表信息
+        SHOW TABLES [from db_name][like wild]
           
-          SHOW COLUMNS from tab_name[from db_name]
+        SHOW COLUMNS from tab_name[from db_name]
           
-          SHOW TABLES from db_name.tab_name
+        SHOW TABLES from db_name.tab_name
           
-      创建数据表
-          CREATE TABLE tbl_name(create_definition,...)[type = table_type]
+    创建数据表
+        CREATE TABLE tbl_name(create_definition,...)[type = table_type]
       
-      ALTER TABLE修改数据表结构
-          增加列
-              ALTER TABLE tab_name ADD col_name type;
-          删除列
-              ALTER TABLE tab_name DROP col_name;
-          改变列
-              ALTER TABLE tab_name MODIFY col_name type;
-          更名列
-              ALTER TABLE tab_name CHANGE col_name new_col_name;
-          更名表
-              ALTER TABLE tab_name RENAME tal_name new_tal_name;
-      删除数据表DROP TABLE
-          DROP TABLE tab_name;
+    ALTER TABLE修改数据表结构
+        增加列
+            ALTER TABLE tab_name ADD col_name type;
+        删除列
+            ALTER TABLE tab_name DROP col_name;
+        改变列
+            ALTER TABLE tab_name MODIFY col_name type;
+        更名列
+            ALTER TABLE tab_name CHANGE col_name new_col_name;
+        更名表
+            ALTER TABLE tab_name RENAME tal_name new_tal_name;
+    删除数据表DROP TABLE
+        DROP TABLE tab_name;
       
-      向数据表插入数据记录
-          INSERT INTO tab_name [(col_name...)] VALUES('XXX','XXXX','XXX')
-          INSERT INTO tab_name SET col_name = 'xxx', col_name = 'yyy',...
-      使用INSERT INTO ....SELECT插入记录
-          INSERT INTO tab_name(col_name) SELECT col_name from tab_name;
+    INSERT语法
+        INSERT INTO tab_name [(col_name...)] VALUES('XXX','XXXX','XXX')
+        INSERT INTO tab_name SET col_name = 'xxx', col_name = 'yyy',...
+    使用INSERT INTO ....SELECT插入记录
+        INSERT INTO tab_name(col_name) SELECT col_name from tab_name;
        
-      REPLACE 与 INSERT使用方法一致，当插入的新纪录与旧记录在唯一索引上有相同的值时，REPLACE删除旧记录，INSERT报错，REPLACE 可能改变原有的值
+    REPLACE 与 INSERT使用方法一致，当插入的新纪录与旧记录在唯一索引上有相同的值时，REPLACE删除旧记录，INSERT报错，REPLACE 可能改变原有的值
       
-      LOAD批量录入数据
-          LOAD DATA [LOCAL] INFILE 'file_name.txt' [REPLACE | IGNORE] INTO TABLE tbl_name；（字句设置结束和分隔，需再学习！！）
-          REPLACE 和IGNORE 关键词控制对现有的唯一键记录的重复的处理。如果你指定REPLACE，新行将代替有相同的唯一键值的现有行。如果你指定IGNORE，跳过有唯一键的现有行的重复行的输入。如果都未指定，出现重复报错，录入终止。
+    LOAD批量录入数据
+        LOAD DATA [LOCAL] INFILE 'file_name.txt' [REPLACE | IGNORE] INTO TABLE tbl_name；（字句设置结束和分隔，需再学习！！）
+        REPLACE 和IGNORE 关键词控制对现有的唯一键记录的重复的处理。如果你指定REPLACE，新行将代替有相同的唯一键值的现有行。如果你指定IGNORE，跳过有唯一键的现有行的重复行的输入。如果都未指定，出现重复报错，录入终止。
       
-      SELECT语法
-          SELECT selection_list 选择哪些列
-          FROM table_list 从何处选择行
-          WHERE primary_constraint 列必须满足什么条件
-          GROUP BY grouping_columns 怎样对结果分组
-          HAVING secondary_constraint 列必须满足的第二条件
-          ORDER BY sorting_columns 怎样对结果排序
-          LIMIT count 结果限定
+     SELECT语法
+        SELECT selection_list 选择哪些列
+        FROM table_list 从何处选择行
+        WHERE primary_constraint 列必须满足什么条件
+        GROUP BY grouping_columns 怎样对结果分组
+        HAVING secondary_constraint 列必须满足的第二条件
+        ORDER BY sorting_columns 怎样对结果排序
+        LIMIT count 结果限定
+
+        普通查询
+            SELECT * FROM tab_name;
+     
+        查询特定行
+            SELECT * FROM tab_name WHERE conditon;
+        
+        查询特定列
+            SELECT col_name,col_name FROM  tab_name WHERE conditon;
+        
+        表达式计算
+            SELECT col_name - col_name FROM tab_name WHERE conditon;
+
+        条件查询
+            SELECT * FROM tab_name WHERE condition (+ - * / > < <= >=  = != NOT OR AND )
+    
+        查询分组
+            SELECT * FROM tab_name WHERE condition GROUP BY col_name;
+     
+        查询排序
+            SELECT * FROM tab_name WHERE coditon ORDER BY col_name [ASC|DESC];
+     
+    UPDATE语法
+        UPDATE tbl_name SET 要更改的列
+        WHERE 要更新的记录
+   
+    DELETE语法
+        DELETE FROM tbl_name WHERE 要删除的记录
+
+CHAPTER 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       
