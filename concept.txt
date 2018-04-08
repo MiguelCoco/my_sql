@@ -208,18 +208,119 @@ CHAPTER 3
         DELETE FROM tbl_name WHERE 要删除的记录
 
 CHAPTER 4
+集合函数
+    行列计数：计算查询语句返回的记录行数
+        SELECT COUNT(*) FROM tab_name WHERE condition;
+    
+    统计字段值的数目：
+        SELECT COUNT(col_name) FROM tab_name; 如果col_name的值出现不止一次，该值会被统计多次
+    
+    统计字段值唯一的数目：
+        SELECT COUNT(DISTINCT col_name) FROM tab_name;
+    
+    计算字段平均值：
+        SELECT AVG(col_name) FROM tab_name;
+        SELECT col_name_2,AVG(col_name) FROM tab_name GROUP BY col_name_2;
+    
+    计算字段值的和：
+        SELECT SUM(col_name) FROM tab_name;
+        SELECT col_name_2,SUM(col_name) FROM tab_name GROUP BY col_name_2;
+    
+    计算字段值的极值：
+        SELECT MAX(col_name) FROM tab_name;
+        SELECT MIN(col_name) FROM tab_name;
+        SELECT col_name_2,MAX/MIN(col_name) FROM tab_name GROUP BY col_name_2;
 
+日期和时间函数
+    获取时间和日期：
+        返回当前日期：
+            SELECT CURDATE();
+     
+        返回当前时间：
+            SELECT CURTIME();
+     
+        返回当前日期和时间：
+            SELECT NOW();
+     
+    自动记录数据的改变时间：
+        时间类型设置为TIMESTAMP
+            mysql> CREATE TABLE student
+            -> (
+            -> id int,
+            -> name char(16),
+            -> english tinyint,
+            -> chinese tinyint,
+            -> history tinyint,
+            -> time timestamp
+            -> );
+        向表中插入记录，可以查看效果：
+            mysql> INSERT student(id,name,englisht,Chinese,history) VALUES(11,‖Tom‖,66,93,67);
+        查看记录的存储情况：
+            mysql> SELECT * FROM student;
+        
+            |id  | name| english| chinese | history | time           |
+            +----+-----+--------+---------+---------+----------------+
+            | 11 | Tom | 66     | 93      | 67      | 20010220123335 |
+            +--+-------+--------+---------+---------+----------------+
 
+        返回日期和时间范围：
+            使用关系运算符和逻辑运算符来限制时间范围：
+                SELECT * FROM tab_name WHERE entrydate>="2001-02-08" AND entrydate<"2001-02-09" ;
+            
+            另一种方法是，你可以使用LIKE 来返回正确的记录。通过在日期表达式中包含通配符“％”，你可以匹配一个特定日期的所有时间
+                SELECT * FROM weblog WHERE entrydate LIKE '2001-02-08%';
 
+        比较日期和时间TO_DAYS(date)：date 可以是数字，可以是串值，可以是日期的时间类型
+            SELECT TO_DAYS(960501);
+            SELECT TO_DAYS('2018-04-08');
+            
+            比较两个时间相差多少天，21世纪过去了多少天？ 6672+
+                SELECT TO_DAYS(NOW())-TO_DAYS('20000101');
+            
+字符串模式匹配：
+    标准SQL模式匹配
+        “_”匹配任何单个字符，而“%”匹配任意数目字符，SQL 的模式是忽略大小写的。
+        不能使用=或!=；应该使用LIKE 或NOT LIKE 比较操作符。
+    
+       找出以‘b’开头的名字：
+            SELECT * FROM tab_name WHERE name LIKE 'b%';
+        找出包含一个“w”的名字：
+            SELECT * FROM pet WHERE name LIKE "%w%";
+    扩展正则表达式模式匹配
+        “.”匹配任何单个的字符
+        
+        一个字符类“[...]”匹配在方括号内的任何一个字符。例如，“[abc]”匹配“a”、“b”或“c”。
+        
+        “[a-z]”匹配任何小写字母，而“[0-9]”匹配任何数字。
+        
+        “* ”匹配零个或多个在它前面的东西。例如，“x*”匹配任何数量的“x”字符，
 
+        模式开始处使用“^”，或在模式的结尾用“$”       
 
+        “{n}”“重复n 次”
 
+SELECT语句高级功能
+    列和表的别名
+        精选输出的列可以用列名、列别名或列位置在ORDER BY 和GROUP BY 子句引用，列位置从1 开始 
+        SELECT name,species FROM pet ORDER BY name, species;
+        
+        SELECT name AS n,species AS s FROM pet ORDER BY n,s;
 
+        SELECT name,species FROM pet ORDER BY 1,2;
+    
+    在子句中使用列的别名：
+        可以在GROUP BY、ORDER BY 或在HAVING 部分中使用别名引用列
+        SELECT species,COUNT(*) AS total FROM pet GROUP BY species HAVING total>1;
 
+        注意！！！ANSI SQL 不允许你在一个WHERE 子句中引用一个别名
+        SELECT id,COUNT(*) AS total FROM pet WHERE total > 1 GROUP BY species
+        会有下面的错误：
+        ERROR 1054: Unknown column 'total' in 'where clause'
 
-
-
-
+    表的别名
+        SELECT p1.name, p1.sex, p2.name, p2.sex, p1.species
+        -> FROM pet AS p1, pet AS p2
+        -> WHERE p1.species = p2.species AND p1.sex = "f" AND p2.sex = "m";
 
 
 
