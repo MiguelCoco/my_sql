@@ -89,21 +89,72 @@ My SQL数据处理
             CHAR  VARCHAR  BLOB  TEXT  ENUM  SET
 
 CHAPTER 2        
+MySQL系统的安装布局
+    二进制分发安装：
+        选择安装地点，解压缩安装，生成如下目录
+            Bin         客户程序和mysqld 服务器
+            Data        日志文件, 数据库
+            include     包含(头)文件
+            Lib         库文件
+            scripts     mysql_install_db
+            share/mysql 错误消息文件
+            sql-bench   基准程序
+
+    RPM安装
+        RPM 分发程序   /usr/bin
+        库文件         /usr/lib/mysql
+        头文件         /usr/include/mysql
+        配置文件       /etc/mysql
+        数据库目录     /var/lib/mysql
+
+    源代码安装
+        bin                 客户程序和脚本
+        include/mysql       包含(头)文件
+        Info Info           格式的文档
+        lib/mysql           库文件
+        libexec mysqld      服务器
+        share/mysql         错误消息文件
+        sql-bench           基准程序和crash-me 测试
+        var                 数据库和日志文件
+
+    在一个安装目录内，源代码安装的布局在下列方面不同于二进制安装：
+        mysqld 服务器被安装在“libexec”目录而不是“bin”目录内。
+        数据目录是“var”而非“data”。
+        mysql_install_db 被安装在“/usr/local/bin”目录而非“/usr/local/mysql/scripts”内。
+        头文件和库目录是“include/mysql”和“lib/mysql”而非“include”和“lib”
 
 My SQL安装
 
     windows安装
         下载mysql.xxxxxxxxxx.zip
-        解压
+        空目录下解压
         运行setup.exe
-        安装
+        安装时选择安装位置
+            启动mysqld时，可用命令mysqld --basedir "path\\xxxx\\"
         设置配置文件
-    启动/关闭服务
-        net start mysql;
-        net stop mysql;
-    登录mysql
-        mysql -u xx -p
-        enterpassword: xxx
+            创建 "my.cnf"文件用来保存默认设置，拷贝"\mysql\my-example.cnf"到"my.cnf"并且编辑它
+        WindowsNT下安装成系统服务
+            1.安装目录下 mysqld --install
+            2.安装选项文件
+                创建 "my.cnf"文件用来保存默认设置，拷贝"\mysql\my-example.cnf"到"my.cnf"并且编辑它
+            3.为服务器定制参数
+                单独使用mysqld守护程序时，可以指定参数，如 mysqld –datadir="d:\data\"
+                
+                安装成系统服务时，只能使用全局选项文件"my.cnf"
+            4.服务用mysql名字安装时，只能通过服务控制管理器（SCM）启动服务或者使用net start/stop mysql命令
+        启动/关闭服务
+            net start mysql;
+            net stop mysql;
+    
+    windows安装后期的设置与测试
+        测试服务器是否工作
+            net start mysql
+        测试客户端连接
+            登录mysql
+                mysql -u root -p
+                enterpassword:********
+            退出mysql
+                exit
     显示数据库
         SHOW DATABASES;
     查看用户
