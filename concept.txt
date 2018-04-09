@@ -254,7 +254,7 @@ CHAPTER 4
             -> time timestamp
             -> );
         向表中插入记录，可以查看效果：
-            mysql> INSERT student(id,name,englisht,Chinese,history) VALUES(11,‖Tom‖,66,93,67);
+            mysql> INSERT student(id,name,englisht,Chinese,history) VALUES(11,Tom,66,93,67);
         查看记录的存储情况：
             mysql> SELECT * FROM student;
         
