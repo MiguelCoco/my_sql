@@ -436,32 +436,118 @@ ALTER TABLE语法创建与删除索引
 
 CHAPTER 5
 数据库备份与恢复
-    数据目录位置
-        默认位置
-            缺省数据库的位置编译在服务器中。
-            1、如果您是在一个源程序分发包中安装MySQL，典型的缺省位置可能是/usr/local/var；
-            2、如果在二进制分发包中安装MySQL，则为/usr/local/mysql/ data；
-            3、在RPM 文件中安装，为/var/lib/mysql。
-            4、对于windwos 平台上的分发，其位置时BASEDIR\data
-        数据库目录的位置可以在启动服务器时指定 --datadir = path
+    数据库目录
+        数据目录位置
+            默认位置
+                缺省数据库的位置编译在服务器中。
+                1、如果您是在一个源程序分发包中安装MySQL，典型的缺省位置可能是/usr/local/var；
+                2、如果在二进制分发包中安装MySQL，则为/usr/local/mysql/ data；
+                3、在RPM 文件中安装，为/var/lib/mysql。
+                4、对于windwos 平台上的分发，其位置时BASEDIR\data
+            数据库目录的位置可以在启动服务器时指定 --datadir = path
         
-        获取数据目录位置可以使用 mysqladmin -uroot -ppassword variables
+            获取数据目录位置可以使用 mysqladmin -uroot -ppassword variables
         
     
+        数据库表示方法
+            格式文件 .frm     描述表的结构
+        
+            数据文件 .MYD     包含表的数据
+        
+            索引文件 .MYI     索引
+        
+        MySQL状态文件
+            进程ID      HOSTNAME.pid    服务器进程ID
+
+           错误日志    HOSTNAME.err    启动和关闭事件和错误状态
+
+            常规日志    HOSTNAME.log    连接/断开事件和查询信息
+
+            更新日志    HOSTNAME.nnn    修改表的内容或结构的所有查询的文本
+
+    重定位数据库目录内容
+        重定位方法
+            1、命令行传入参数（启动选项）
+            2、执行选项文件
+            3、在原始位置做一个指向新位置的符号链接
+        
+        重定位的实体与可使用的重定位方法
+            全数据目录           启动选项、选项文件或symlink
+            PID 文件             启动选项、选项文件
+            单个的数据库目录      Symlink
+            常规日志文件          启动选项、选项文件
+            单个的数据库表        Symlink
+            更新日志文件          启动选项、选项文件
+
+        重定位数据库目录
+            1、关闭服务器
+            2、将数据库目录移动到新的位置
+            3、删除原来的数据库
+            4、使用重定位方法
+            5、启动服务器（启动数据库）
+          
+        重定位数据库和数据库表（windows不能使用符号链接方法，不能重定位）
+        
+        重定位状态文件（需再学习！！！）
 
 
+    备份和恢复数据表
+        使用SQL语句备份和恢复
+            SELECT INTO OUTFILE 备份
+                1、锁定数据表，避免在备份过程中，表被更新
+                mysql>LOCK TABLES READ tbl_name;
+                
+                2、导出数据
+                mysql>SELECT * INTO OUTFILE ‗tbl_name.bak‘ FROM tbl_name;
 
+                3、解锁表 
+                mysql>UNLOCK TABLES;
 
+            LOAD DATA INFILE 恢复备份
+                1、为表增加一个写锁定：
+                mysql>LOCK TABLES tbl_name WRITE;
 
+                2、恢复数据
+                mysql>LOAD DATA INFILE ‗tbl_name.bak‘
+                    ->REPLACE INTO TABLE tbl_name;
 
+                3、解锁表
+                mysql->UNLOCAK TABLES;
 
+        使用mysqlimport恢复数据
+           shell> mysqlimport [options] db_name filename  
+           常用的选项为：
+                -C, --compress 如果客户和服务器均支持压缩，压缩两者之间的所有信息。
+                -d, --delete 在导入文本文件前倒空表格。
+                l, --lock-tables 在处理任何文本文件前为写入所定所有的表。这保证所有的表在服务器上被同步。
+                --low-priority，--local，--replace，--ignore 分别对应LOAD DATA语句的LOW_PRIORITY，LOCAL，REPLACE，IGNORE 关键字
+        
+        使用mysqldump备份数据
+            可以在导出的文件中包括SQL 语句，因此可以备份数据库表的结构，而且可以备份一个数据库，甚至整个数据库系统
+            
+            服务器主机上备份数据库db_name
+                shell> mydqldump db_name
+            数据库备份到bd_name.bak 中：
+                shell> mydqldump db_name>db_name.bak
 
+        直接拷贝备份
+            备份一个表，需要三个文件：
+                对于MyISAM 表：
+                    tbl_name.frm 表的描述文件
+                    tbl_name.MYD 表的数据文件
+                    tbl_name.MYI 表的索引文件
+                对于ISAM 表：
+                    tbl_name.frm 表的描述文件
+                    tbl_name.ISD 表的数据文件
+                    tbl_name.ISM 表的索引文件
 
-
-
-
-
-
+    使用更新日志文件
+        启用日志        
+        重写日志
+        恢复日志内容
+        
+    使用MySQL內建复制功能
+        
 
 
 
