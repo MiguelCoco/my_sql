@@ -436,7 +436,17 @@ ALTER TABLE语法创建与删除索引
 
 CHAPTER 5
 数据库备份与恢复
-
+    数据目录位置
+        默认位置
+            缺省数据库的位置编译在服务器中。
+            1、如果您是在一个源程序分发包中安装MySQL，典型的缺省位置可能是/usr/local/var；
+            2、如果在二进制分发包中安装MySQL，则为/usr/local/mysql/ data；
+            3、在RPM 文件中安装，为/var/lib/mysql。
+            4、对于windwos 平台上的分发，其位置时BASEDIR\data
+        数据库目录的位置可以在启动服务器时指定 --datadir = path
+        
+        获取数据目录位置可以使用 mysqladmin -uroot -ppassword variables
+        
     
 
 
