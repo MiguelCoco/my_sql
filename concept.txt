@@ -193,9 +193,28 @@ CHAPTER 3
         SHOW TABLES from db_name.tab_name
           
     创建数据表
-        CREATE TABLE tbl_name(create_definition,...)[type = table_type]
-      
-    ALTER TABLE修改数据表结构
+        CREATE TABLE tab_name(create_definition,...)[type = table_type]
+        
+        指定表的类型
+            CREATE TABLE tab_name(create_definition,...)TYPE = HEAP
+    
+        使用INSERT INTO 创建表
+            1) 运行DESCRIBE 或SHOW COLUMNS 查询以确定想从中获取信息的表中的列类型
+            2) 创建一个表，明确地指定刚才查看到的列的名称和类型
+            3) 在创建了该表后，发布一条INSERT ... SELECT 查询，检索出结果并将它们插入所创建的表中
+   
+       CREATE....SELECT为选择出的记录创建新的字段
+          mysql> CREATE TABLE test
+          -> (a int not null auto_increment,primary key (a), key(b))
+          -> SELECT b,c from test2;
+          这将创建一个有3 个列(a，b，c)的表，其中b，c 列的数据来自表test2
+   
+      可以通过选择一个表的全部内容（无WHERE 子句）来拷贝一个表，或利用一个总是失败的WHERE 子句来创建一个具有相同结构的空表
+          mysql> CREATE TABLE test SELECT * from test2;
+          
+          mysql> CREATE TABLE test SELECT * from test2 where 0;
+
+   ALTER TABLE修改数据表结构
         增加列
             ALTER TABLE tab_name ADD col_name type;
         删除列
@@ -218,9 +237,21 @@ CHAPTER 3
     REPLACE 与 INSERT使用方法一致，当插入的新纪录与旧记录在唯一索引上有相同的值时，REPLACE删除旧记录，INSERT报错，REPLACE 可能改变原有的值
       
     LOAD批量录入数据
-        LOAD DATA [LOCAL] INFILE 'file_name.txt' [REPLACE | IGNORE] INTO TABLE tbl_name；（字句设置结束和分隔，需再学习！！）
+        LOAD DATA [LOCAL] INFILE 'file_name.txt' [REPLACE | IGNORE] INTO TABLE tbl_name；
         REPLACE 和IGNORE 关键词控制对现有的唯一键记录的重复的处理。如果你指定REPLACE，新行将代替有相同的唯一键值的现有行。如果你指定IGNORE，跳过有唯一键的现有行的重复行的输入。如果都未指定，出现重复报错，录入终止。
-      
+        LOAD DATA INFILE 'data.txt' INTO TABLE tbl_name
+        FIELDS TERMINATED BY '\t' ENCLOSED BY " ESCAPE BY '\\'
+        LINES TERMINATED BY '\n';
+        
+        在换行符处寻找行边界
+        在定位符处将行分进字段
+        不用引号字符封装
+        将由“\”开头的定位符、换行符或“\”解释是字段值的部分字面字符
+        
+        FIELDS TERMINATED BY 在定位符处将行分进字段
+        FIELDS [OPTIONALLY] ENCLOSED BY 控制字段的包围字符
+        FIELDS ESCAPE BY 转义带有意义的字符为值中普通字符
+        LINES TERMINATED BY 寻找换行边界
      SELECT语法
         SELECT selection_list 选择哪些列
         FROM table_list 从何处选择行
@@ -660,10 +691,30 @@ CHAPTER 8
 
     SQL查询的优化
         使用EXPLAIN 语句检查SQL 语句
-
-
-
-
+            mysql> EXPLAIN SELECT student.name From student,pet
+                -> WHERE student.name=pet.owner;
+                其结论为：
+                +---------+------+---------------+------+---------+------+------+------------+
+                | table   | type | possible_keys | key  | key_len | ref  | rows | Extra |
+                +---------+------+---------------+------+---------+------+------+------------+
+                | student | ALL  | NULL          | NULL | NULL    | NULL | 13   |            |
+                | pet     | ALL  | NULL          | NULL | NULL    | NULL | 9    | where used 
+                table 
+                    输出的行所引用的表
+                type
+                    联结类型。最好到最差类型的次序：
+                        system const eq_ref ref range index ALL possible_keys
+                key
+                    实际使用的键
+                key_len
+                    实际使用的键的长度
+                ref
+                    ref 列显示哪个列或常数与key 一起用于从表中选择行
+                rows
+                    rows 列显示MySQL 相信它必须检验以执行查询的行数
+                Extra
+                    Only index 意味着信息只用索引树中的信息检索出的
+                    where used 意味着一个WHERE 子句将被用来限制哪些行与下一个表匹配或发向客户
 
 
 
