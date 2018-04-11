@@ -222,7 +222,7 @@ CHAPTER 3
         改变列
             ALTER TABLE tab_name MODIFY col_name type;
         更名列
-            ALTER TABLE tab_name CHANGE col_name new_col_name;
+            ALTER TABLE tab_name CHANGE col_name new_col_name type;
         更名表
             ALTER TABLE tab_name RENAME tal_name new_tal_name;
     删除数据表DROP TABLE
