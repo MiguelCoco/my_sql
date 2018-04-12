@@ -585,6 +585,11 @@ CHAPTER 6
 CHAPTER 7
 数据库安全
 
+
+
+
+
+
 CHAPTER 8
 数据库优化
     索引的使用
@@ -717,50 +722,135 @@ CHAPTER 8
                     where used 意味着一个WHERE 子句将被用来限制哪些行与下一个表匹配或发向客户
 
 
+        SELECT查询的速度
+            MySQL优化WHERE语句
+                1、删除不必要的括号
+                    ((a AND b) AND c OR (((a AND b) AND (c AND d))))
+                    -> (a AND b AND c) OR (a AND b AND c AND d)
+                2、常数调入：
+                    (a<b AND b=c) AND a=5
+                    -> b>5 AND b=c AND a=5
+                3、删除常数条件(因常数调入所需)
+                    (B>=5 AND B=5) OR (B=6 AND 5=5) OR (B=7 AND 5=6)
+                    -> B=5 OR B=6
+                4、索引使用的常数表达式仅计算一次
 
+                5、在一个单个表上的没有一个WHERE 的COUNT(*)直接从表中检索信息。当仅使用一个表时，对任何NOT NULL 表达式也这样做。
+                6、无效常数表达式的早期检测。MySQL 快速检测某些SELECT 语句是不可能的并且不返回行。
+                7、如果你不使用GROUP BY 或分组函数(COUNT()、MIN()„„)，HAVING 与WHERE合并。
+                8、为每个子联结(sub join)，构造一个更简单的WHERE 以得到一个更快的WHERE计算并且也尽快跳过记录。
+                9、所有常数的表在查询中的任何其他表前被首先读出。一个常数的表是：
+                      一个空表或一个有1 行的表。
+                      与在一个UNIQUE 索引、或一个PRIMARY KEY 的WHERE 子句一起使用的表，这里所有的索引部分使用一个常数表达式并且索引部分被定义为NOT NULL。
+                      所有下列的表用作常数表：
+                          mysql> SELECT * FROM t WHERE primary_key=1;
+                          mysql> SELECT * FROM t1,t2
+                          WHERE t1.primary_key=1 AND t2.primary_key=t1.id;
+              10、对联结表的最好联结组合是通过尝试所有可能性来找到:(。如果所有在ORDER BY和GROUP BY 的列来自同一个表，那么当廉洁时，该表首先被选中。
+              11、如果有一个ORDER BY 子句和一个不同的GROUP BY 子句，或如果ORDER BY或GROUP BY 包含不是来自联结队列中的第一个表的其他表的列，创建一个临时表。
+              12、如果你使用SQL_SMALL_RESULT，MySQL 将使用一个在内存中的表。
+              13、因为DISTINCT 被变换到在所有的列上的一个GROUP BY，DISTINCT 与ORDERBY 结合也将在许多情况下需要一张临时表。
+              14、每个表的索引被查询并且使用跨越少于30% 的行的索引。如果这样的索引没能找到，使用一个快速的表扫描。
+              15、在一些情况下，MySQL 能从索引中读出行，甚至不咨询数据文件。如果索引使用的所有列是数字的，那么只有索引树被用来解答查询。
+              16、在每个记录被输出前，那些不匹配HAVING 子句的行被跳过。
+                  下面是一些很快的查询例子：
+                      mysql> SELECT COUNT(*) FROM tbl_name;
+                      mysql> SELECT MIN(key_part1),MAX(key_part1) FROM tbl_name;
+                      mysql> SELECT MAX(key_part2) FROM tbl_name
+                      WHERE key_part_1=constant;
+                      mysql> SELECT ... FROM tbl_name ORDER BY key_part1,key_part2,... LIMIT 10;
+                      mysql> SELECT ... FROM tbl_name ORDER BY key_part1 DESC,key_part2 DESC,... LIMIT 10;
+                  下列查询仅使用索引树就可解决(假设索引列是数字的)：
+                      mysql> SELECT key_part1,key_part2 FROM tbl_name WHERE key_part1=val;
+                      mysql> SELECT COUNT(*) FROM tbl_name
+                      WHERE key_part1=val1 AND key_part2=val2;
+                      mysql> SELECT key_part2 FROM tbl_name GROUP BY key_part1;
+                 下列查询使用索引以排序顺序检索，不用一次另外的排序：
+                      mysql> SELECT ... FROM tbl_name ORDER BY key_part1,key_part2,...
+                      mysql> SELECT ... FROM tbl_name ORDER BY key_part1 DESC,key_part2 DESC,...
 
+            MySQL 怎样优化LEFT JOIN
+                在MySQL 中，A LEFT JOIN B 实现如下：
+                    1、表B被设置为依赖于表A。
+                    2、表A 被设置为依赖于所有用在LEFT JOIN 条件的表(除B外)。
+                    3、所有LEFT JOIN 条件被移到WHERE 子句中。
+                    4、进行所有标准的联结优化，除了一个表总是在所有它依赖的表之后被读取。如果有一个循环依赖，MySQL 将发出一个错误。
+                    5、进行所有标准的WHERE 优化。
+                    6、如果在A 中有一行匹配WHERE 子句，但是在B中没有任何行匹配LEFT JOIN 条件，那么在B中生成所有列设置为NULL 的一行。
+                    7、如果你使用LEFT JOIN 来找出在某些表中不存在的行并且在WHERE 部分你有下列测试：column_name IS NULL，这里column_name 被声明为NOT NULL 的列，那么MySQL 在它已经找到了匹配LEFT JOIN 条件的一行后，将停止在更多的行后寻找(对一特定的键组合) 
+                
+            MySQL 怎样优化LIMIT
+                在一些情况中，当你使用LIMIT #而不使用HAVING 时，MySQL 将以不同方式处理查询
+                    1、如果你用LIMIT 只选择一些行，当MySQL 一般比较喜欢做完整的表扫描时，它将在一些情况下使用索引。
+                    2、如果你使用LIMIT #与ORDER BY，MySQL 一旦找到了第一个# 行，将结束排序而不是排序整个表。
+                    3、当结合LIMIT #和DISTINCT 时，MySQL 一旦找到#个唯一的行，它将停止。
+                    4、在一些情况下，一个GROUP BY 能通过顺序读取键(或在键上做排序)来解决，并然后计算摘要直到键值改变。在这种情况下，LIMIT #将不计算任何不必要的GROUP。
+                    5、只要MySQL 已经发送了第一个#行到客户，它将放弃查询。
+                    6、LIMIT 0 将总是快速返回一个空集合。这对检查查询并且得到结果列的列类型是有用的。
+                    7、临时表的大小使用LIMIT #计算需要多少空间来解决查询
+        
+        记录转载和修改的速度
+            改善数据装载操作效率的策略
+                成批装载较单行装载更快，因为在装载每个记录后，不需要刷新索引高速缓存；可在成批记录装入后才刷新。
+                
+                在表无索引时装载比索引后装载更快。如果有索引，不仅必须增加记录到数据文件，而且还要修改每个索引以反映增加了的新记录。
 
+                较短的SQL 语句比较长的SQL 语句要快，因为它们涉及服务器方的分析较少，而且还因为将它们通过网络从客户机发送到服务器更快
 
+            INSERT 查询的速度
+                插入一个记录的时间由下列组成：
+                    连接：(3)
+                    发送查询给服务器：(2)
+                    分析查询：(2)
+                    插入记录：（1 x 记录大小）
+                    插入索引：（1 x 索引）
+                    关闭：(1)
+                
+                加快插入的一些方法
+                    如果你同时从同一客户插入很多行，使用多个值表的INSERT 语句
+                    如果你从不同客户插入很多行，你能通过使用INSERT DELAYED 语句得到更高的速度
+                    用MyISAM，如果在表中没有删除的行，能在SELECT:s 正在运行的同时插入行
+                   **当从一个文本文件装载一个表时，使用LOAD DATA INFILE。这通常比使用很多INSERT 语句快20 倍
+                    当表有很多索引时，有可能多做些工作使得LOAD DATA INFILE 更快些。使用下列过程：
+                        1、有选择地用CREATE TABLE 创建表。例如使用mysql 或Perl-DBI。
+                        2、执行FLUSH TABLES，或外壳命令mysqladmin flush-tables。
+                        3、使用myisamchk --keys-used=0 -rq /path/to/db/tbl_name。这将从表中删除所有索引的使用。
+                        4、用LOAD DATA INFILE 把数据插入到表中，这将不更新任何索引，因此很快。
+                        5、如果你有myisampack 并且想要压缩表，在它上面运行myisampack。
+                        6、用myisamchk -r -q /path/to/db/tbl_name 再创建索引。这将在将它写入磁盘前在内存中创建索引树，并且它更快，因为避免大量磁盘寻道。结果索引树也被完美地平衡。
+                        7、执行FLUSH TABLES，或外壳命令mysqladmin flush-tables。这个过程将被构造进在MySQL 的某个未来版本的LOAD DATA INFILE
 
+                    **你可以锁定你的表以加速插入。
+                        mysql> LOCK TABLES a WRITE;
+                        mysql> INSERT INTO a VALUES (1,23),(2,34),(4,33);
+                        mysql> INSERT INTO a VALUES (8,26),(6,29);
+                        mysql> UNLOCK TABLES;
 
+            UPDATE 查询的速度
+                ？？？更改查询被优化为有一个写开销的一个SELECT 查询，写速度依赖于被更新数据大小和被更新索引的数量    
+                使更改更快的另一个方法是推迟更改并且然后一行一行地做很多更改。如果你锁定表，做一行一行地很多更改比一次做一个快    
+                    动态记录格式的更改一个较长总长的记录，可能切开记录。因此如果你经常这样做，时不时地OPTIMIZE TABLE 是非常重要的
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      
-          
+            DELETE 查询的速度
+                删除一个记录的时间精确地与索引数量成正比
+                从一个表删除所有行比删除行的一大部分也要得多
     
-  
+    数据库表的处理
+        表类型
+        
+        表数量
+        
+        表锁定
+    
+    服务器级的优化
+        磁盘问题（减少寻道时间）
+            符号连接
+            磁盘分隔
+        硬件问题
+            安装更多的内存
+            如果有足够的RAM 使所有交换在内存文件系统中完成，那么应该重新配置系统
+            增加更快的磁盘以减少I/O 等待时间
+            数据重新放到不同设备之前，应该保证了解该系统的装载特性
+            在设置MySQL 时，应该配置其使用静态库而不是共享库
+
+ 
